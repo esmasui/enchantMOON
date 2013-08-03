@@ -44,14 +44,6 @@ var io = ('undefined' === typeof module ? {} : module.exports);
   io.transports = [];
 
   /**
-   * Keep track of jsonp callbacks.
-   *
-   * @api private
-   */
-
-  io.j = [];
-
-  /**
    * Keep track of our io.Sockets
    *
    * @api private
@@ -1453,7 +1445,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       , resource: 'socket.io'
       , transports: io.transports
       , 'connect timeout': 10000
-      , 'try multiple transports': true
+      , 'try multiple transports': false
       , 'reconnect': true
       , 'reconnection delay': 500
       , 'reconnection limit': Infinity
@@ -2320,11 +2312,6 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       }
     }
 
-    function onload () {
-      this.onload = empty;
-      self.socket.setBuffer(false);
-    };
-
     this.sendXHR = this.request('POST');
 
     this.sendXHR.onreadystatechange = stateChange;
@@ -2481,28 +2468,11 @@ var io = ('undefined' === typeof module ? {} : module.exports);
       }
     };
 
-    function onload () {
-      this.onload = empty;
-      this.onerror = empty;
-      self.retryCounter = 1;
-      self.onData(this.responseText);
-      self.get();
-    };
-
-    function onerror () {
-      self.retryCounter ++;
-      if(!self.retryCounter || self.retryCounter > 3) {
-        self.onClose();  
-      } else {
-        self.get();
-      }
-    };
-
     this.xhr = this.request();
 
     this.xhr.onreadystatechange = stateChange;
 
-    this.xhr.send(null);
+    this.xhr.send();
   };
 
   /**
@@ -2515,7 +2485,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
     io.Transport.XHR.prototype.onClose.call(this);
 
     if (this.xhr) {
-      this.xhr.onreadystatechange = this.xhr.onload = this.xhr.onerror = empty;
+      this.xhr.onreadystatechange = empty;
       try {
         this.xhr.abort();
       } catch(e){}
