@@ -15,6 +15,10 @@ function styleOf(color) {
     return (color.length == 4 ? 'rgba' : 'rgb') + '(' + color.join(',') + ')';
 }
 
+var running = null;
+var tasks = [];
+var taskCount = 0;
+
 function drawStroke(stroke, ctx) {
     var lineWidth = stroke.width;
     var strokeData = stroke.data;
@@ -31,13 +35,17 @@ function drawStroke(stroke, ctx) {
             continue;
         }
 
-        ctx.strokeStyle = styleOf(RGBAOf(strokeColor, 0xFF * p));
-        ctx.lineWidth = parseInt(lineWidth * p, 10);
+        tasks.push((function(ctx, strokeColor, lineWidth, px, py, x, y, p){
+            return function(){
+                ctx.strokeStyle = styleOf(RGBAOf(strokeColor, 0xFF * p));
+                ctx.lineWidth = parseInt(lineWidth * p, 10);
 
-        ctx.beginPath();
-        ctx.moveTo(px, py);
-        ctx.lineTo(x, y);
-        ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(px, py);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            };
+        })(ctx, strokeColor, lineWidth, px, py, x, y, p));
 
         px = x;
         py = y;
@@ -52,5 +60,17 @@ function drawStrokes(info, canvas) {
     ctx.fillStyle = styleOf(RGBOf(info.color));
     ctx.fillRect(0, 0, info.width, info.height);
     strokes.forEach(function(e){drawStroke(e, ctx)});
+    taskCount = tasks.length;
+
+    running = setInterval(function(){
+        for(var i = 0; i <= 10; ++i){
+            if(tasks.length == 0) {
+                clearInterval(running);
+                running = null;
+                return;
+            }
+            tasks.shift().call();
+        }
+    }, 0);
 }
 
