@@ -58,7 +58,11 @@ function drawStrokes(info, canvas) {
     // canvas.width = info.width;
     // canvas.height = info.height;
     var ctx = canvas.getContext('2d');
-    ctx.fillStyle = styleOf(info.color != 0 ? parseColor(info.color) : [0x00,0x00,0x00,0xFF]);
+    if(info['transparent']) {
+        ctx.fillStyle = styleOf([0x80,0x80,0x80,0x80]);
+    } else {
+        ctx.fillStyle = styleOf(parseColor(info.color));    
+    }
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     strokes.forEach(function(e){drawStroke(info, e, ctx)});
     taskCount = tasks.length;
