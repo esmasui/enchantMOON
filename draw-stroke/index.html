@@ -25,12 +25,6 @@
                 var output = [];
                 for (var i = 0, f; f = files[i]; i++) {
 
-
-                    // Only process info.json
-                    if (!f.name.match('info.json')) {
-                        continue;
-                    }
-
                     var reader = new FileReader();
 
                     // Closure to capture the file information.
