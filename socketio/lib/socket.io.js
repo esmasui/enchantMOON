@@ -279,7 +279,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
   util.defer = function (fn) {
     util.load(function () {
-      setTimeout(fn, 100);
+      setTimeout(fn, 500);
     });
   };
 
@@ -2306,6 +2306,9 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
         if (this.status == 200){
           self.socket.setBuffer(false);
+          self.onreadystatechange = empty;
+          self.sendXHR.abort();
+          self.sendXHR = null;
         } else {
           self.onClose();
         }
@@ -2461,7 +2464,9 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
         if (this.status == 200) {
           self.onData(this.responseText);
-          self.get();
+          self.xhr.abort();
+          self.xhr = null;
+          self.onOK();
         } else {
           self.onClose();
         }
@@ -2474,6 +2479,10 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
     this.xhr.send();
   };
+
+  XHRPolling.prototype.onOK = function () {
+    setTimeout(XHRPolling.prototype.get.bind(this), 1000);
+  }
 
   /**
    * Handle the unclean close behavior.
