@@ -45,6 +45,25 @@
 
     global.console.ready = function (address) {
         importJS(["lib/socket.io.js"], function() {
+
+        //Eagle hack
+        (function(){
+            function truncate(s) {
+                if(s) {
+                    var i = s.indexOf("\ufeff\ufeff");
+                    if (i < 0) {
+                      return s;
+                    }
+                    return s.substring(0, i);
+                }
+            }
+
+            var decodePacket = io.parser.decodePacket;
+            io.parser.decodePacket = function (data) {
+                return decodePacket(truncate(data));
+            }
+        })();
+
             connect(address);
         });
     };

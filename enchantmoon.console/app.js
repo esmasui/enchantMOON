@@ -24,6 +24,17 @@ var server = http.createServer(function(req, res) {
      res.end(output);
 }).listen(port);
 
+//Eagle hack
+(function() {
+	function boundary(s) {
+		return s + "\ufeff\ufeff";
+	}
+
+	var encodePacket = socketio.parser.encodePacket;
+	socketio.parser.encodePacket = function(packet) {
+		return boundary(encodePacket(packet));
+	};
+})();
 
 var io = socketio.listen(server);
 
@@ -37,6 +48,7 @@ io.configure(function () {
 	}
 	io.set("polling duration", 0); 
 });
+
 
 var privateRouter = {
 

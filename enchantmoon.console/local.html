@@ -47,6 +47,24 @@
 	</ol>
 
 	<script>
+	//Eagle hack
+	(function(){
+    	function truncate(s) {
+	      	if(s) {
+	        	var i = s.indexOf("\ufeff\ufeff");
+		        if (i < 0) {
+		          return s;
+		        }
+	        	return s.substring(0, i);
+	    	}
+    	}
+
+    	var decodePacket = io.parser.decodePacket;
+	    io.parser.decodePacket = function (data) {
+	    	return decodePacket(truncate(data));
+    	}
+  	})();
+
 	var MOON = {
 		eval: function(){},
 		disconnect: function(){}
