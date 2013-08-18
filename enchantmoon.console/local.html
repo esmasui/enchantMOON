@@ -70,9 +70,23 @@
 		disconnect: function(){}
 	};
 	(function(){
-		if(location.hash){
-			return;
+
+		if(/Chrome/.test(navigator.userAgent)){
+			var _log = console.log;
+			console.log = function(message, style) {
+				if(style){
+					_log.call(console, '%c' + message, style);
+				}else{
+					_log.call(console, message);
+				}
+			};
+		} else {
+			var _log = console.log;
+			console.log = function(message) {
+				_log.call(console, message);
+			};
 		}
+
 		console.history = [];
 		var socket = io.connect();
 		socket.on("connect", function(){
@@ -85,24 +99,28 @@
 			}
 		});
 		socket.on("join", function(peer){
-			console.log("%cjoin: "+peer, 'color: #005aff');
+			console.log("join:sessionid="+peer, 'color: #005aff');
 		});
 		socket.on("leave", function(peer){
-			console.log("%cleave: "+peer, 'color: #ff005a');
+			console.log("leave:sessionid="+peer, 'color: #ff005a');
 		});
 		socket.on("proceed", function(data){
 			console.history.push(data);
 			try{
 				console.log(data);
 			}catch(e){
-				console.log(e.toString());
+				console.log(e);
 			}
 		});
 		socket.on("accept", function(data){
-			console.log("%c" + data, 'color: #888888');
+			console.log(data, 'color: #888888');
 		});
 		socket.on("console.log", function(data){
-			console.log("%c" + data, 'background: #333333; color: #00ff5a');
+			if(typeof data == 'object'){
+				console.log(data);
+			} else {
+				console.log(data, 'background: #333333; color: #00ff5a');	
+			}
 		});
 	})();
 	</script>
