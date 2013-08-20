@@ -1,17 +1,17 @@
 importJS(["lib/MOON.js"], function() {
  
-function ready(uploader, callback) {
+function ready(uploader, callback, text) {
     var uri = "http://enchantmoonstrokes.appspot.com/info.json";
-    uploader(uri, callback);
+    uploader(uri, callback, text);
 }
 
-function upload(uri, callback) {
+function upload(uri, callback, text) {
     var http = new XMLHttpRequest();
 
     http.onreadystatechange = function () {
         if (this.readyState == 4) {
             if(this.status == 200) {
-                callback(this.responseText);
+                callback(this.responseText, text);
             } else {
                 callback(false);
             }
@@ -24,7 +24,7 @@ function upload(uri, callback) {
     http.send(infoJSON);
 }
 
-function tweet(resp) {
+function tweet(resp, text) {
     if(!resp) {
         _uploading = false;
         fail();
@@ -42,7 +42,7 @@ function tweet(resp) {
 
     if(data && data.appId) {
         _uploading = false;
-        MOON.openUrl("https://twitter.com/intent/tweet?source=webclient&text=" + encodeURIComponent(" " + data.appId + " #enchantMOON"));
+        MOON.openUrl("https://twitter.com/intent/tweet?source=webclient&text=" + encodeURIComponent(text + " " + data.appId + " #enchantMOON"));
         MOON.finish();
     } else {
         _uploading = false;
@@ -57,7 +57,12 @@ function fail(){
 }
 
 function handleTap() {
-    ready(upload, tweet);
+    var text = window.prompt("Compose new Tweet...", "");
+    if(!text) {
+        MOON.finish();
+        return;
+    }
+    ready(upload, tweet, text);
 }
 
 var _uploading = false;
