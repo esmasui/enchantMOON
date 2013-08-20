@@ -42,7 +42,7 @@ function tweet(resp, text) {
 
     if(data && data.appId) {
         _uploading = false;
-        MOON.openUrl("https://twitter.com/intent/tweet?source=webclient&text=" + encodeURIComponent(text + " " + data.appId + " #enchantMOON"));
+        MOON.openUrl("https://twitter.com/intent/tweet?source=webclient&text=" + encodeURIComponent((text ? text + " " : "") + data.appId));
         MOON.finish();
     } else {
         _uploading = false;
@@ -58,7 +58,7 @@ function fail(){
 
 function handleTap() {
     var text = window.prompt("Compose new Tweet...", "");
-    if(!text) {
+    if(!(typeof text === 'string')) {
         MOON.finish();
         return;
     }
