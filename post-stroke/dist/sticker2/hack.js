@@ -1,7 +1,8 @@
 importJS(["lib/MOON.js"], function() {
  
+var boundary = "/*EagleBoundary" + new Date().getTime() + "*/";
 function ready(uploader, callback, text) {
-    var uri = "http://enchantmoonstrokes.appspot.com/info.json?boundary=" + encodeURIComponent("\ufeff\ufeff");
+    var uri = "http://enchantmoonstrokes.appspot.com/info.json?boundary=" + encodeURIComponent(boundary);
     uploader(uri, callback, text);
 }
 
@@ -33,7 +34,7 @@ function tweet(resp, text) {
 
     var data = null;
     try {
-        data = JSON.parse(resp.substring(0, resp.lastIndexOf("\ufeff\ufeff")));
+        data = JSON.parse(resp.substring(0, resp.lastIndexOf(boundary)));
     } catch(e) {
         _uploading = false;
         fail();
