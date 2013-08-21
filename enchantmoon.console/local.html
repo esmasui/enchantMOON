@@ -65,10 +65,11 @@
     	}
   	})();
 
-	var MOON = {
-		eval: function(){},
-		disconnect: function(){}
-	};
+	var MOON = {};
+	['eval', 'disconnect', 'require'].forEach(function(e){
+		MOON[e] = function(){};
+	});
+
 	(function(){
 
 		if(/Chrome/.test(navigator.userAgent)){
@@ -93,10 +94,41 @@
 			MOON.eval = function(data){
 				socket.emit("command", data);
 			};
-			window.moon = MOON.eval;
 			MOON.disconnect = function(){
 				socket.disconnect();
 			}
+
+			/** load scripts */
+			MOON.require = function(scripts) {
+				scripts.forEach(function(e){
+					var s = '';
+					s += '(function(){';
+					s += '	var xhr = new XMLHttpRequest();';
+					s += '	xhr.open("GET", "' + e + '", true);';
+					s += '	xhr.onload = function(){';
+					s += '	    var t = this.responseText;';
+					s += '	    for(var i = t.length; i > 0; --i) {';
+					s += '		    try {';
+					s += '			    eval(t.substring(0, i));';
+					s += '              console.log("Loaded ' + e + '");';
+					s += '			    break;';
+					s += '		    } catch(e) {console.log(e.toString())}';
+					s += '	    }';
+					s += '	};';
+					s += '	xhr.send();';
+					s += '})();';
+					MOON.eval(s);
+				});
+			};
+
+			/** iterate property kesy */
+			MOON.keys = function(o) {
+				MOON.eval('(function(){var s = []; for(var n in ' + o + '){s.push(n)} return s;})()');
+			};
+			MOON.entries = function(o) {
+				MOON.eval('(function(){var s = {}; for(var n in ' + o + '){var v  = ' + o + '[n]; s[n] = (typeof v === "function") ? v.toString() : v} return s;})()');
+			};
+			window.moon = MOON.eval;
 		});
 		socket.on("join", function(peer){
 			console.log("join:sessionid="+peer, 'color: #005aff');
