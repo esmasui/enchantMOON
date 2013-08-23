@@ -112,7 +112,7 @@ var loggingStatement = invocation(function() {
 					+ result.total + ' tests. ' + result.passed + ' passed, '
 					+ result.failed + ' failed.');
 			if(console.socket) {
-				console.socket.emit("QUnit.done");
+				console.socket.emit("QUnit.done", result.failed <= 0);
 			}
 		});
 	}, false);
@@ -257,8 +257,8 @@ if (require.main == module) {
 			ready(uri, cheerio.load(fs.readFileSync(uri)), socket);
 		}
 
-		socket.on("QUnit.done", function() {
-			process.exit(0);
+		socket.on("QUnit.done", function(succeed) {
+			process.exit(succeed ? 0 : -1);
 		});
 	});
 } 
