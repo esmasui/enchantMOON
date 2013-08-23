@@ -1937,9 +1937,10 @@ var io = ('undefined' === typeof module ? {} : module.exports);
           reset();
         }
       } else {
-        if (self.reconnectionDelay < limit) {
-          self.reconnectionDelay *= 2; // exponential back off
-        }
+        // disable exponential back off
+        // if (self.reconnectionDelay < limit) {
+        //   self.reconnectionDelay *= 2; // exponential back off
+        // }
 
         self.connect();
         self.publish('reconnecting', self.reconnectionDelay, self.reconnectionAttempts);

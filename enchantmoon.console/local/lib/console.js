@@ -16,7 +16,7 @@
 
 (function(global){
     function connect(address) {
-        var socket = io.connect(address, {'transports': ["xhr-polling"]});
+        var socket = io.connect(address, {'transports': ["xhr-polling"], "try multiple transports": false, "connect timeout": Infinity, "max reconnection attempts": Infinity});
 
         global.console.log = function (message) {
             socket.emit("console.log", message);
@@ -41,6 +41,8 @@
                 socket.emit("proceed", e.toString());
             }
         });
+
+        global.console.socket = socket;
     };
 
     global.console.ready = function (address) {
