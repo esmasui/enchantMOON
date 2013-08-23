@@ -1,0 +1,11 @@
+{
+  "name": "enchantmoon.qunit",
+  "version": "0.0.1",
+  "private": false,
+  "dependencies": {
+    "socket.io": "0.9.16",
+    "cheerio": "0.12.1",
+    "request": "2.27.0",
+    "async": "0.2.9"    
+  }
+}
