@@ -26,25 +26,42 @@
 <body>
 	<h1>enchantMOON.console</h1>
 
-	<h2>Installing the Sticker</h2>
+	<h2>使い方(インターネット)</h2>
 	<ol>
-		<li>Download and install the sticker on your enchantMOON</li>
+		<li><a href="https://raw.github.com/esmasui/enchantMOON/master/enchantmoon.console/dist/console.moon.zip">シール</a>をenchantMOONにインストールする</li>
+		<li>enchantMOONでシールをタップする</li>
+		<li>プロンプトに <code>http://enchantmoonconsole.herokuapp.com:80</code> を入力(デフォルト値)する</li>		
+		<li>接続が完了したらダイアログにIDが表示される</li>
+		<li>PCのブラウザで <code>http://enchantmoonconsole.herokuapp.com/?host=<i>表示されたID</i></code>を指定してページを開く</li>
+		<li>ブラウザでWebコンソールを開く</li>
+		<li>Webコンソールで <code>moon(1+1)</code>を実行する</li>
+		<li>しばらくして、enchantMOONから1+1(エコー)、2(実行結果)が返ってくるのを確認する</li>
+		<li>返ってこない場合は最初からやり直す</li>
+		<li>返ってくるのが確認できたらプロンプトを閉じておく</li>
+		<li>任意のスクリプトを実行する</li>
+		<li>enchantMOONがスリープするなどして切断された場合は、スリープ解除で再接続されIDが新たに採番されるので、ブラウザのID指定をやりなおして再度ページを開く</li>
+		<li>終了する場合はWebコンソールで <code>MOON.finish()</code>を実行してシールを終了する</li>
 	</ol>
-	<h2>Connecting enchantMOON</h2>
+	<h2>使い方(ローカルネットワーク)</h2>
 	<ol>
-		<li>Tap the sticker to bring up the prompt, and then enter the host address, then tap OK</li>
-		<li>Open JavaScript console on this window, and then call MOON.eval() with any statements you want to execute on your enchantMOON</li>
-	</ol>
+		<li><a href="https://github.com/esmasui/enchantMOON/tree/master/enchantmoon.console"><code>https://github.com/esmasui/enchantMOON/tree/master/enchantmoon.console</code></a>をチェックアウトする</li>
+		<li><code>node app.js</code> を実行してサーバーを起動する</li>
+		<li>enchantMOONでシールをタップする</li>
+		<li>プロンプトに <code>http://サーバーのアドレス:3000</code> を入力する</li>		
+		<li>接続が完了したらダイアログにIDが表示される</li>
+		<li>ローカルネットワークではIDは不要なのでダイアログを閉じる</li>
+		<li>PCのブラウザで <i>サーバーのアドレス</i>を指定してページを開く</li>
+		<li>ブラウザでWebコンソールを開く</li>
+		<li>Webコンソールで <code>moon(1+1)</code>を実行する</li>
+		<li>しばらくして、enchantMOONから1+1(エコー)、2(実行結果)が返ってくるのを確認する</li>
+		<li>返ってこない場合は最初からやり直す</li>
+		<li>返ってくるのが確認できたら任意のスクリプトを実行する</li>
+		<li>終了する場合はWebコンソールで <code>MOON.finish()</code>を実行してシールを終了する</li>
+	</ol>	
 	<h3>Example</h3>
 	<pre>
-  MOON.eval('importJS(["lib/MOON.js"], function(){})');
-  MOON.eval('MOON.getPaperJSON(MOON.getCurrentPage().backing)');
+ MOON.eval('MOON.getPaperJSON(MOON.getCurrentPage().backing)');
 	</pre>
-	<h2>Disconnecting enchantMOON</h2>
-	<ol>
-		<li>Call MOON.disconnect()</li>
-		<li>Cancel the sticker on your enchantMOON</li>
-	</ol>
 
 	<script>
 	//Eagle hack
@@ -89,7 +106,11 @@
 
 		socket.on("connect", function(){
 			MOON.eval = function(data){
-				socket.emit("command", data);
+				var command = data;
+				if(typeof command == 'function') {
+					command = "(" + command + ")()";
+				}
+				socket.emit("command", command);
 			};
 			MOON.disconnect = function(){
 				socket.disconnect();
