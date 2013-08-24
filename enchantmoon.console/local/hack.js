@@ -13,19 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+importJS(["lib/MOON.js", "lib/enchant.js", "lib/ui.enchant.js", "lib/color.enchant.js", "lib/stylus.enchant.js", "lib/puppet.enchant.js", "lib/moon.puppet.enchant.js", "lib/localStorage.js"], function() {
 
-importJS(["lib/console.js"], function() {
-    (function() {
-        var DEFAULT_ADDRESS = "http://10.0.1.3:3000";
+    var KEY = 'com.uphyca.enchantmoon.console';
+    var DEFAULT_ADDRESS = "http://enchantmoonconsole.herokuapp.com:80";
+    var PROMPT_TITLE = "サーバーのアドレスを入力してください:";
+    var RESTART_MESSAGE = "アドレスを変更しました。もう一度実行してください。";
 
-        var sticker = Sticker.create();
-        sticker.ontap = function() {
-            var address = prompt("Enter Address:", localStorage['address'] || DEFAULT_ADDRESS);
-            if(address){
-                localStorage['address'] = address;
-                console.ready(address);
+    var sticker = Sticker.create();
+
+    sticker.ontap = function() {
+        var prevAddress = localStorage.getItem(KEY);
+        var address = prompt(PROMPT_TITLE, prevAddress || DEFAULT_ADDRESS);
+        if (typeof address === 'string') {
+            if (prevAddress != address) {
+                localStorage.setItem(KEY, address);
+                MOON.alert(RESTART_MESSAGE, function() {
+                    MOON.finish();
+                });
+            } else {
+                importJS(["lib/console.js"], function() {
+                    console.ready(address, function(socket) {
+                        MOON.alert(socket.socket.sessionid);
+                    });
+                });
             }
-        };
-        sticker.register();
-    })();
+        } else {
+            MOON.finish();
+        }
+    };
+
+    sticker.onattach = function () {
+        MOON.finish();
+    };
+    
+    sticker.ondetach = function () {
+        localStorage.removeItem(KEY);
+        MOON.finish();
+    };
+
+    sticker.register();
 });

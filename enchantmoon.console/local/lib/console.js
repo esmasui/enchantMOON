@@ -15,12 +15,18 @@
  */
 
 (function(global){
-    function connect(address) {
+    function connect(address, callback) {
         var socket = io.connect(address, {'transports': ["xhr-polling"], "try multiple transports": false, "connect timeout": Infinity, "max reconnection attempts": Infinity});
 
         global.console.log = function (message) {
             socket.emit("console.log", message);
         };
+
+        if (callback) {
+            socket.on("connect", function() {
+                callback(socket);
+            });
+        }
 
         socket.on("command", function(command) {
             try{
@@ -45,7 +51,7 @@
         global.console.socket = socket;
     };
 
-    global.console.ready = function (address) {
+    global.console.ready = function (address, callback) {
         importJS(["lib/socket.io.js"], function() {
 
         //Eagle hack
@@ -66,7 +72,7 @@
             }
         })();
 
-            connect(address);
+            connect(address, callback);
         });
     };
 })(window);

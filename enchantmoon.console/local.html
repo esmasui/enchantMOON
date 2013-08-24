@@ -66,9 +66,6 @@
   	})();
 
 	var MOON = {};
-	['eval', 'disconnect', 'require'].forEach(function(e){
-		MOON[e] = function(){};
-	});
 
 	(function(){
 
@@ -88,8 +85,8 @@
 			};
 		}
 
-		console.history = [];
-		var socket = io.connect();
+		var socket = io.connect(location.href);
+
 		socket.on("connect", function(){
 			MOON.eval = function(data){
 				socket.emit("command", data);
@@ -99,7 +96,7 @@
 			}
 
 			/** load scripts */
-			MOON.require = function(scripts) {
+			MOON.importJS = function(scripts) {
 				scripts.forEach(function(e){
 					var s = '';
 					s += '(function(){';
@@ -128,6 +125,9 @@
 			MOON.entries = function(o) {
 				MOON.eval('(function(){var s = {}; for(var n in ' + o + '){var v  = ' + o + '[n]; s[n] = (typeof v === "function") ? v.toString() : v} return s;})()');
 			};
+			MOON.finish = function() {
+				MOON.eval('MOON.finish()');
+			}
 			window.moon = MOON.eval;
 		});
 		socket.on("join", function(peer){
@@ -137,7 +137,6 @@
 			console.log("leave:sessionid="+peer, 'color: #ff005a');
 		});
 		socket.on("proceed", function(data){
-			console.history.push(data);
 			try{
 				console.log(data);
 			}catch(e){

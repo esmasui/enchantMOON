@@ -87,17 +87,17 @@ var publicRouter = {
 
 	, onHostEvent: function(socket, evt) {
 		socket.on(evt, function(message, responder) {
-			socket.get('peerid', function (err, peerid) {
-				var peer = io.sockets.socket(peerid);
-				peer.emit(evt, message);
-	    	});
+			var host = io.sockets.socket(socket.handshake.query.host);
+			host.emit(evt, message);
 		});
 	}
 
 	, onEagleEvent: function(socket, evt) {
 		socket.on(evt, function(message, responder) {
-			var host = io.sockets.socket(socket.handshake.query.host);
-			host.emit(evt, message);
+			socket.get('peerid', function (err, peerid) {
+				var peer = io.sockets.socket(peerid);
+				peer.emit(evt, message);
+	    	});
 		});
 	}
 

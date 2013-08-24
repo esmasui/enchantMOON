@@ -9,14 +9,21 @@
 (function(global) {
 
     function html5CanvasToSerializableObject(canvas) {
-        var ctx = canvas.getContext('2d'),
+        var i, l, ctx = canvas.getContext('2d'),
             w = canvas.width, h = canvas.height,
             imgData = ctx.getImageData(0, 0, w, h),
             data = imgData.data,
-            str = '';
-
-        for (var i = 0, l = data.length; i < l; i++) {
-            str += String.fromCharCode(data[i]);
+            str = '',
+            table = [];
+        for (i = 0; i < 256; i++) {
+            if (i < 16) {
+                table[i] = '0' + i.toString(16);
+            } else {
+                table[i] = i.toString(16);
+            }
+        }
+        for (i = 0, l = data.length; i < l; i++) {
+            str += table[data[i]];
         }
 
         return {
@@ -36,14 +43,15 @@
         var ctx = canvas.getContext('2d');
         var imgData = ctx.getImageData(0, 0, w, h);
         var data = imgData.data;
-        var i = 0;
+        var i = 0, j = 0;
         for (var y = 0; y < h; y++) {
             for (var x = 0; x < w; x++) {
-                data[i] = rawString.charCodeAt(i);
-                data[i + 1] = rawString.charCodeAt(i + 1);
-                data[i + 2] = rawString.charCodeAt(i + 2);
-                data[i + 3] = rawString.charCodeAt(i + 3);
+                data[i] = parseInt(rawString[j], 16) * 16 + parseInt(rawString[j + 1], 16);
+                data[i + 1] = parseInt(rawString[j + 2], 16) * 16 + parseInt(rawString[j + 3], 16);
+                data[i + 2] = parseInt(rawString[j + 4], 16) * 16 + parseInt(rawString[j + 5], 16);
+                data[i + 3] = parseInt(rawString[j + 6], 16) * 16 + parseInt(rawString[j + 7], 16);
                 i += 4;
+                j += 8;
             }
         }
         ctx.putImageData(imgData, 0, 0);
@@ -111,6 +119,25 @@
         _stickerPageCallback(imgPath);
     }
 
+
+    function saveImage(name, canvas) {
+        var arg = JSON.stringify([ name, html5CanvasToSerializableObject(canvas) ]);
+        var result = __moon__.invoke('saveImage', '1', arg);
+        var obj;
+        try {
+            obj = JSON.parse(result);
+        } catch (e) {
+            var err = new Error('returned invalid JSON from moon API: ' + result);
+            throw err;
+        }
+        var error = obj.error;
+        var ret = obj.result;
+        if (error === '') {
+            return ret;
+        } else {
+            throw new Error(error);
+        }
+    }
 
     var inNotebook = false;
     var _notebookCallback;
@@ -224,6 +251,7 @@
         'getPaperJSON',
         'setPaperJSON',
         'getImagePath',
+        'getLocale',
         'searchWeb',
         'searchPage',
         'searchStorage',
@@ -236,6 +264,16 @@
         apiBinds[name] = createAPIBind(name, VERSION);
     });
 
+    if (!navigator.language) {
+        var lang;
+        try {
+            lang = apiBinds.getLocale();
+        } catch (e) {
+            lang = 'ja-jp';
+        }
+        navigator.language = lang;
+    }
+
     global.MOON = {
         alert: alert,
         _resumeFromAlert: _resumeFromAlert,
@@ -243,6 +281,7 @@
         _resumeFromPenPrompt: _resumeFromPenPrompt,
         openStickerPage: openStickerPage,
         _resumeFromStickerPage: _resumeFromStickerPage,
+        saveImage: saveImage,
         openNotebook: openNotebook,
         _resumeFromNotebook: _resumeFromNotebook,
         uploadCurrentPageToEvernote: uploadCurrentPageToEvernote,
