@@ -206,9 +206,6 @@ function runTests(scripts, socket) {
 	});
 
 	socket.on("proceed", function(data) {
-		if (data) {
-			console.log(data);
-		}
 		var command = commands.shift();
 		if (command) {
 			socket.emit("command", command);
