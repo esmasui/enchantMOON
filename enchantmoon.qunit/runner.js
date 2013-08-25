@@ -189,7 +189,7 @@ function ready(uri, $, socket) {
 	async.parallel(endpoints, function(err, results) {
 		var scripts = [];
 		scripts.push(initStatement);
-		scripts.push(results.join(";"));
+		scripts.push(results.join(";\n"));
 		scripts.push(loggingStatement, loadStatement);
 		runTests(scripts, socket);
 	});
@@ -205,14 +205,18 @@ function runTests(scripts, socket) {
 		console.log(data);
 	});
 
-	socket.on("proceed", function() {
+	socket.on("proceed", function(data) {
+		if (data) {
+			console.log(data);
+		}
 		var command = commands.shift();
 		if (command) {
 			socket.emit("command", command);
 		}
 	});
 
-	socket.emit("command", commands.shift());
+	var command = commands.shift();
+	socket.emit("command", command);
 }
 
 // Eagle hack

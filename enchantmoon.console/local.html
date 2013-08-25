@@ -34,7 +34,7 @@
 		<li>接続が完了したらダイアログにIDが表示される</li>
 		<li>PCのブラウザで <code>http://enchantmoonconsole.herokuapp.com/?host=<i>表示されたID</i></code>を指定してページを開く</li>
 		<li>ブラウザでWebコンソールを開く</li>
-		<li>Webコンソールで <code>moon(1+1)</code>を実行する</li>
+		<li>Webコンソールで <code>moon('1+1')</code>を実行する</li>
 		<li>しばらくして、enchantMOONから1+1(エコー)、2(実行結果)が返ってくるのを確認する</li>
 		<li>返ってこない場合は最初からやり直す</li>
 		<li>返ってくるのが確認できたらプロンプトを閉じておく</li>
@@ -52,17 +52,38 @@
 		<li>ローカルネットワークではIDは不要なのでダイアログを閉じる</li>
 		<li>PCのブラウザで <i>サーバーのアドレス</i>を指定してページを開く</li>
 		<li>ブラウザでWebコンソールを開く</li>
-		<li>Webコンソールで <code>moon(1+1)</code>を実行する</li>
+		<li>Webコンソールで <code>moon('1+1')</code>を実行する</li>
 		<li>しばらくして、enchantMOONから1+1(エコー)、2(実行結果)が返ってくるのを確認する</li>
 		<li>返ってこない場合は最初からやり直す</li>
 		<li>返ってくるのが確認できたら任意のスクリプトを実行する</li>
 		<li>終了する場合はWebコンソールで <code>MOON.finish()</code>を実行してシールを終了する</li>
-	</ol>	
-	<h3>Example</h3>
+	</ol>
+	<h3>コマンド</h3>
 	<pre>
- MOON.eval('MOON.getPaperJSON(MOON.getCurrentPage().backing)');
+moon('expression')
 	</pre>
-
+	<pre>
+moon(function)
+	</pre>
+	<h3>サンプル</h3>
+	<pre>
+ moon('1+1');
+	</pre>
+	<pre>
+ moon(function(){return 1+1});
+	</pre>
+	<pre>
+ moon('MOON.alert("Hello, enchantMOON")');
+	</pre>
+	<pre>
+ moon(function(){MOON.alert("Hello, enchantMOON")});
+	</pre>
+	<pre>
+ moon('MOON.getPaperJSON(MOON.getCurrentPage().backing)');
+	</pre>
+	<pre>
+ moon(function(){return MOON.getPaperJSON(MOON.getCurrentPage().backing)});
+	</pre>
 	<script>
 	//Eagle hack
 	(function(){
