@@ -172,6 +172,10 @@ function ready(uri, $, socket) {
 					
 					console.log("Loading " + url);
 
+					if(!fs.existsSync(url)) {
+						console.log("File not exists:" + url);
+						process.exit(-1);
+					}
 					callback(null, fs.readFileSync(url));
 				});
 			}
