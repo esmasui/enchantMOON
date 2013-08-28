@@ -46,7 +46,7 @@ io.configure(function () {
 		io.enable('browser client gzip');          // gzip the file
 		io.set('log level', 1);                    // reduce logging		
 	}
-	io.set("polling duration", 0); 
+	io.set("polling duration", 5);
 });
 
 

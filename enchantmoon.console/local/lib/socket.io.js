@@ -1553,7 +1553,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
     var xhr = io.util.request();
 
-    xhr.open('GET', url, true);
+    xhr.open('GET', url);
 
     xhr.onreadystatechange = function () {
       if (xhr.readyState == 4) {
@@ -2348,7 +2348,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
     var req = io.util.request()
       , query = io.util.query(this.socket.options.query, 't=' + +new Date);
 
-    req.open(method || 'GET', this.prepareUrl() + query, true);
+    req.open(method || 'GET', this.prepareUrl() + query);
 
     if (method == 'POST') {
       try {
@@ -2465,11 +2465,7 @@ var io = ('undefined' === typeof module ? {} : module.exports);
 
         if (this.status == 200) {
           self.onData(this.responseText);
-          try{
-            self.xhr.abort();
-          } catch(e) {}
-          self.xhr = null;
-          setTimeout(XHRPolling.prototype.get.bind(self), 500);
+          self.get();
         } else {
           self.onClose();
         }

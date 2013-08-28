@@ -16,7 +16,7 @@
 
 (function(global){
     function connect(address, callback) {
-        var socket = io.connect(address, {'transports': ["xhr-polling"], "try multiple transports": false, "connect timeout": Infinity, "max reconnection attempts": Infinity});
+        var socket = io.connect(address, {'transports': ["xhr-polling"], "try multiple transports": false, "connect timeout": 20000, "max reconnection attempts": Infinity});
 
         global.console.log = function (message) {
             socket.emit("console.log", message);

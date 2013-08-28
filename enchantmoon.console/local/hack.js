@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-importJS(["lib/MOON.js", "lib/enchant.js", "lib/ui.enchant.js", "lib/color.enchant.js", "lib/stylus.enchant.js", "lib/puppet.enchant.js", "lib/moon.puppet.enchant.js", "lib/localStorage.js"], function() {
+importJS(["lib/MOON.js", "lib/localStorage.js"], function() {
 
     var KEY = 'com.uphyca.enchantmoon.console';
     var DEFAULT_ADDRESS = "http://enchantmoonconsole.herokuapp.com:80";
@@ -32,7 +32,7 @@ importJS(["lib/MOON.js", "lib/enchant.js", "lib/ui.enchant.js", "lib/color.encha
                     MOON.finish();
                 });
             } else {
-                importJS(["lib/console.js"], function() {
+                importJS(["lib/enchant.js", "lib/ui.enchant.js", "lib/color.enchant.js", "lib/stylus.enchant.js", "lib/puppet.enchant.js", "lib/moon.puppet.enchant.js", "lib/console.js"], function() {
                     console.ready(address, function(socket) {
                         MOON.alert(socket.socket.sessionid);
                     });
