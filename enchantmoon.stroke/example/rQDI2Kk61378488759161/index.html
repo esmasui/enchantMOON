@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!--
+/*
+ * Copyright (C) 2013 uPhyca Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->	
+<html>
+<head>
+<script>
+	(function(global) {
+
+		function loadMOON(global) {
+
+			function storage(key, value) {
+				if(typeof value === 'undefined') {
+					return global.__storage__[key];
+				}
+				global.__storage__[key] = value;
+			}
+
+			function loadData(uri, callback) {
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', uri, true);
+				xhr.onload = function() {
+					callback(this.responseText);
+				};
+				xhr.send();
+			}
+
+			function alert(text, callback) {
+				callback = callback || function() {};
+				window.alert(text);
+				callback.call();
+			}
+
+			function penPrompt(text, callback) {
+				callback = callback || function() {};
+				callback(window.prompt(text));
+			}
+
+			function getCurrentPage() {
+				return JSON.parse(storage('info.json'));
+			}
+
+			function getPaperJSON(paperID) {
+				return JSON.parse(storage([paperID, 'info.json'].join('/')));
+			}
+
+			function setPaperJSON(paperID, paper) {
+				var page = getCurrentPage();
+				var canvasID = page.backing === paperID ? 'backing' : 'stickers';
+				storage(storage([paperID, 'info.json'].join('/')), JSON.stringify(paper));
+				Strokes.drawStrokes(paper, document.getElementById(canvasID), {unit: Number.MAX_VALUE});
+			}
+
+			function openUrl(url) {
+				window.open(url);
+				finish();
+			}
+
+			function searchWeb(query) {
+				openUrl("http://www.google.com/search?q=" + encodeURIComponent(query));
+			}
+
+			function finish() {
+				Array.prototype.forEach.call(document.getElementsByTagName("canvas"), function(each) {
+					if(each.id === 'backing' || each.id === 'stickers') {
+						return;
+					}
+					each.parentElement.removeChild(each);
+				});
+				var enchantStage = document.getElementById('enchant-stage');
+				if (enchantStage) {
+					enchantStage.parentElement.removeChild(enchantStage);
+				}				
+			}
+
+			function notImplemented() {
+				//console.log.apply(console, Array.prototype.slice.call(arguments));
+			}
+
+			var Module = (function() {
+				return {
+					loadData: loadData,
+					alert: alert,
+					penPrompt: penPrompt,
+					getCurrentPage: getCurrentPage,
+					setCurrentPage: notImplemented,
+					getImagePath: notImplemented,
+					searchWeb: searchWeb,
+					getPaperJSON: getPaperJSON,
+					setPaperJSON: setPaperJSON,
+					openStickerPage: notImplemented,
+					openNotebook: notImplemented,
+					uploadCurrentPageToEvernote: notImplemented,
+					getPageThumbnail: notImplemented,
+					getEditPaperThumbnail: notImplemented,
+					peel: notImplemented,
+					finish: finish,
+					openUrl: openUrl,
+					openPage: notImplemented,
+					setPenColor: notImplemented,
+					setPenWidth: notImplemented,
+					searchStorage: notImplemented,
+					showParticle: notImplemented,
+					showParticles: notImplemented,
+					recognizeStrokes: notImplemented
+				};
+			})();
+
+			global.MOON = Module;
+		}
+
+		global.importJS = function(scripts, callback) {
+			var load = function(uri) {
+				var xhr = new XMLHttpRequest();
+				xhr.open("GET", uri, false);
+				xhr.send();
+				return eval(xhr.responseText);
+			};
+
+			scripts.forEach(function(each) {
+				if (/\/MOON.js$/.test(each)) {
+					loadMOON(window);
+					return;
+				}
+				load(each);
+			});
+
+			callback();
+		};
+
+		global.Sticker = function() {
+		};
+
+		global.Sticker.create = function() {
+			return new Sticker();
+		}
+
+		global.Sticker.prototype.register = function() {
+			global.__sticker__ = this;
+		};
+	})(window);
+</script>
+<script src="http://enchantmoonstrokes.appspot.com/scripts/drawStroke.js"></script>
+<style>
+body {
+	widht: 100%;
+	background: #333333;
+}
+
+canvas {
+	position: absolute;
+	border: 0px;
+	padding: 0p;
+}
+
+</style>
+</head>
+<body>
+
+	<canvas width="768" height="1024" id="backing"></canvas>
+	<canvas width="768" height="1024" id="stickers"></canvas>
+
+	<script>
+		(function() {
+			function loadJSON(uri) {
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', uri, false);
+				xhr.send();
+				var returnThis = JSON.parse(xhr.responseText);
+				return returnThis;
+			}
+
+			var addEventListener = (function() {
+				if (document.addEventListener) {
+					return function(el, type, fn) {
+						el.addEventListener(type, fn, false);
+					};
+				} else if (document.attachEvent) {
+					return function(el, type, fn) {
+						el.attachEvent('on'+type, fn);
+					};
+				} else {
+					return function(el, type, fn) {
+						el['on'+type] = fn;
+					};
+				}
+			})();
+
+			window.__storage__ = {};
+
+			var tuple = location.href.split('/'),
+				pageID = tuple[tuple.length - 3],
+				stickerID = tuple[tuple.length - 2],
+				opts = {
+					unit: Number.MAX_VALUE
+				},
+				paperIDs = [],
+				storage = window.__storage__,
+				latestID;
+
+			var info = loadJSON(['..', 'info.json'].join('/'));
+			storage['info.json'] = JSON.stringify(info);
+
+			paperIDs.push(info.backing);
+			Array.prototype.push.apply(paperIDs, info.stickers);
+
+			opts.callback = function(rect) {
+
+				if (latestID === stickerID) {
+					importJS(['hack.js'], function() {
+						addEventListener(document.getElementById('stickers'), "click", function(e){
+							var x = e.offsetX;
+								y = e.offsetY;
+							if(x >= rect.l && x <= rect.r && y >= rect.t && y <= rect.b) {
+								window.__sticker__.ontap();
+							}
+						});
+					});
+				}
+
+				var paperID = latestID = paperIDs.shift();
+
+				if (!paperID) {
+					return;
+				}
+
+				var isSelf = (paperID === stickerID),
+					isSticker = paperID !== info.backing,
+					canvasID = isSticker ? 'stickers' : 'backing';
+					current = isSelf ? '.' : ['..', paperID].join('/'),
+					paper = loadJSON([current, 'info.json'].join('/'), opts);
+				storage[[paperID, 'info.json'].join('/')] = JSON.stringify(paper);
+
+				Strokes.drawStrokes(paper, document.getElementById(canvasID), opts);
+			};
+
+			opts.callback.call();
+		})();
+	</script>
+</body>
+</html>
