@@ -5,7 +5,7 @@
   "dependencies": {
     "socket.io": "0.9.16",
     "cheerio": "0.12.1",
-    "request": "2.27.0",
+    "request": "2.88.2",
     "async": "0.2.9"    
   }
 }
